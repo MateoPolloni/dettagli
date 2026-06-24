@@ -25,7 +25,7 @@ export default function Hero360() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'linear-gradient(180deg, rgba(10,10,12,0.6) 0%, rgba(10,10,12,0.1) 30%, rgba(10,10,12,0.1) 68%, rgba(10,10,12,0.8) 100%)',
+            'linear-gradient(180deg, rgba(10,10,12,0.92) 0%, rgba(10,10,12,0.35) 14%, rgba(10,10,12,0.1) 30%, rgba(10,10,12,0.1) 68%, rgba(10,10,12,0.85) 100%)',
         }}
       />
 

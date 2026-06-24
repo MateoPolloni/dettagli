@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Cormorant, Manrope, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   title: 'Dettagli — Esclusivo Detailing per Auto da Collezione',
   description:
     'Premium detailing for exotic and high-end vehicles. Paint correction, ceramic coating, and concours-level care for the world\'s finest automobiles.',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0a0c',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
