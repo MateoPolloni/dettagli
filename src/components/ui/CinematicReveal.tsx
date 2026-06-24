@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 interface CinematicRevealProps {
@@ -11,31 +11,41 @@ interface CinematicRevealProps {
 }
 
 export default function CinematicReveal({ videoSrc, poster, alt, className = '' }: CinematicRevealProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [revealed, setRevealed] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
-  // Video only loads on larger screens with motion enabled — phones and
-  // data-saver / reduced-motion visitors get the static poster instead.
+  // Video plays on every screen size — phones included, for the same
+  // cinematic impact as desktop. The only opt-outs are explicit user/system
+  // signals: reduced-motion preference or an active Data Saver mode.
   useEffect(() => {
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const sizeQuery = window.matchMedia('(min-width: 768px)');
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
 
     setReducedMotion(motionQuery.matches);
-    setShowVideo(sizeQuery.matches && !motionQuery.matches && !saveData);
+    setShowVideo(!motionQuery.matches && !saveData);
 
     const onChange = () => {
       setReducedMotion(motionQuery.matches);
-      setShowVideo(sizeQuery.matches && !motionQuery.matches && !saveData);
+      setShowVideo(!motionQuery.matches && !saveData);
     };
     motionQuery.addEventListener('change', onChange);
-    sizeQuery.addEventListener('change', onChange);
-    return () => {
-      motionQuery.removeEventListener('change', onChange);
-      sizeQuery.removeEventListener('change', onChange);
-    };
+    return () => motionQuery.removeEventListener('change', onChange);
   }, []);
+
+  // Some mobile browsers won't honor the `autoplay` attribute reliably once
+  // the element mounts post-hydration — an explicit play() call covers that.
+  // If playback genuinely can't start, fall back to the static poster rather
+  // than show a frozen/black video frame.
+  useEffect(() => {
+    if (!showVideo) return;
+    const el = videoRef.current;
+    if (!el) return;
+    const playPromise = el.play();
+    if (playPromise) playPromise.catch(() => setVideoFailed(true));
+  }, [showVideo]);
 
   // The unveiling — a brief, deliberate pause before the cover draws back.
   // This is the only transform animation on the media layer: a single
@@ -51,6 +61,8 @@ export default function CinematicReveal({ videoSrc, poster, alt, className = '' 
     return () => clearTimeout(t);
   }, [reducedMotion]);
 
+  const useVideo = showVideo && !videoFailed;
+
   return (
     <div className={`relative overflow-hidden ${className}`}>
       <div
@@ -60,8 +72,9 @@ export default function CinematicReveal({ videoSrc, poster, alt, className = '' 
           transitionTimingFunction: 'cubic-bezier(0.19, 1, 0.22, 1)',
         }}
       >
-        {showVideo ? (
+        {useVideo ? (
           <video
+            ref={videoRef}
             autoPlay
             muted
             loop
@@ -70,6 +83,7 @@ export default function CinematicReveal({ videoSrc, poster, alt, className = '' 
             poster={poster}
             aria-label={alt}
             draggable={false}
+            onError={() => setVideoFailed(true)}
             className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
           >
             <source src={videoSrc} type="video/mp4" />

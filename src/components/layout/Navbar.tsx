@@ -48,11 +48,13 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled || open
-            ? 'backdrop-blur-2xl bg-[#0a0a0c]/90 border-b border-[rgba(255,255,255,0.07)]'
-            : 'bg-transparent'
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl"
+        style={{
+          backgroundColor: scrolled || open ? 'rgba(10,10,12,0.98)' : 'transparent',
+          borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+          transition: 'background-color 500ms ease, border-color 500ms ease',
+          willChange: 'background-color',
+        }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link
@@ -64,7 +66,7 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center gap-6">
-            <LanguageToggle className="hidden sm:flex" />
+            <LanguageToggle />
 
             <button
               onClick={() => setOpen(o => !o)}
@@ -96,11 +98,11 @@ export default function Navbar() {
 
       {/* Full-screen menu overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-[#0a0a0c] transition-opacity duration-500 ${
+        className={`fixed inset-0 z-40 bg-[#0a0a0c] overflow-y-auto transition-opacity duration-500 ${
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="h-full flex flex-col justify-center px-8 md:px-20">
+        <div className="min-h-full flex flex-col justify-center px-8 md:px-20 py-28">
           <nav className="flex flex-col gap-2">
             {links.map((link, i) => (
               <Link
@@ -131,7 +133,6 @@ export default function Navbar() {
               <div className="font-sans text-[9px] tracking-[0.28em] uppercase text-[#55555c] mb-2">{t.nav.contact}</div>
               concierge@dettagli.com
             </div>
-            <LanguageToggle className="sm:hidden" />
           </div>
         </div>
       </div>
