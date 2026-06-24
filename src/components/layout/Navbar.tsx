@@ -24,9 +24,25 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // `overflow: hidden` alone doesn't reliably stop background scroll/bounce
+  // on iOS Safari. Pinning body position and restoring scroll on close does.
   useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (!open) return;
+    const scrollY = window.scrollY;
+    const body = document.body.style;
+    body.position = 'fixed';
+    body.top = `-${scrollY}px`;
+    body.left = '0';
+    body.right = '0';
+    body.width = '100%';
+    return () => {
+      body.position = '';
+      body.top = '';
+      body.left = '';
+      body.right = '';
+      body.width = '';
+      window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' });
+    };
   }, [open]);
 
   return (

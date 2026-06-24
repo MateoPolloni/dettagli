@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 interface CinematicRevealProps {
@@ -11,9 +11,7 @@ interface CinematicRevealProps {
 }
 
 export default function CinematicReveal({ videoSrc, poster, alt, className = '' }: CinematicRevealProps) {
-  const rootRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
-  const [offset, setOffset] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
@@ -40,6 +38,10 @@ export default function CinematicReveal({ videoSrc, poster, alt, className = '' 
   }, []);
 
   // The unveiling — a brief, deliberate pause before the cover draws back.
+  // This is the only transform animation on the media layer: a single
+  // mount-time transition, never re-triggered by scroll (a scroll-linked
+  // version of this previously fought its own 2.4s transition on every
+  // scroll frame, producing a laggy, jumpy feel — especially on iOS Safari).
   useEffect(() => {
     if (reducedMotion) {
       setRevealed(true);
@@ -49,34 +51,12 @@ export default function CinematicReveal({ videoSrc, poster, alt, className = '' 
     return () => clearTimeout(t);
   }, [reducedMotion]);
 
-  // Slow parallax drift while the stage is in view.
-  useEffect(() => {
-    if (reducedMotion) return;
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const el = rootRef.current;
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.bottom > 0 && rect.top < window.innerHeight) {
-            setOffset(window.scrollY * 0.12);
-          }
-        }
-        ticking = false;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [reducedMotion]);
-
   return (
-    <div ref={rootRef} className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden ${className}`}>
       <div
         className="absolute inset-0 transition-transform duration-[2400ms]"
         style={{
-          transform: `scale(${revealed ? 1.04 : 1.18}) translateY(${offset}px)`,
+          transform: `scale(${revealed ? 1.04 : 1.18})`,
           transitionTimingFunction: 'cubic-bezier(0.19, 1, 0.22, 1)',
         }}
       >

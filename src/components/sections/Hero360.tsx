@@ -8,7 +8,7 @@ export default function Hero360() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0a0a0c]">
+    <section className="relative min-h-dvh flex items-center overflow-hidden bg-[#0a0a0c]">
 
       {/* The featured vehicle, unveiled */}
       <div className="absolute inset-0">
