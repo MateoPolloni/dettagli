@@ -24,24 +24,27 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // `overflow: hidden` alone doesn't reliably stop background scroll/bounce
-  // on iOS Safari. Pinning body position and restoring scroll on close does.
+  // Lock background scroll while the menu is open. Deliberately NOT using
+  // `position: fixed` on body here — per spec, a `position: fixed` ancestor
+  // creates a new containing block for ITS OWN fixed-position descendants,
+  // which would hijack our fixed header and the menu overlay itself,
+  // detaching them from the real viewport (visible as a gap/misalignment
+  // at the top of the screen). `overflow: hidden` + `overscroll-behavior`
+  // achieves the same lock on modern iOS Safari without that hazard.
   useEffect(() => {
     if (!open) return;
-    const scrollY = window.scrollY;
+    const html = document.documentElement.style;
     const body = document.body.style;
-    body.position = 'fixed';
-    body.top = `-${scrollY}px`;
-    body.left = '0';
-    body.right = '0';
-    body.width = '100%';
+    const prevHtmlOverflow = html.overflow;
+    const prevBodyOverflow = body.overflow;
+    const prevOverscroll = html.overscrollBehaviorY;
+    html.overflow = 'hidden';
+    body.overflow = 'hidden';
+    html.overscrollBehaviorY = 'none';
     return () => {
-      body.position = '';
-      body.top = '';
-      body.left = '';
-      body.right = '';
-      body.width = '';
-      window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' });
+      html.overflow = prevHtmlOverflow;
+      body.overflow = prevBodyOverflow;
+      html.overscrollBehaviorY = prevOverscroll;
     };
   }, [open]);
 
