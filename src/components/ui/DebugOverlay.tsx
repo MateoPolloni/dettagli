@@ -18,7 +18,9 @@ export default function DebugOverlay() {
         const rect = header?.getBoundingClientRect();
         const computedTransform = header ? getComputedStyle(header).transform : 'n/a';
         const appliedY = (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY;
+        const staticMode = (window as typeof window & { __staticHeaderMode?: boolean }).__staticHeaderMode;
         setStats({
+          staticHeaderMode: String(staticMode),
           rawScrollY: String(Math.round(window.scrollY)),
           appliedY: appliedY === undefined ? 'n/a' : String(Math.round(appliedY)),
           headerTop: rect ? rect.top.toFixed(1) : 'n/a',

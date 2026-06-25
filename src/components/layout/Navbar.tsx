@@ -5,9 +5,35 @@ import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import LanguageToggle from '@/components/ui/LanguageToggle';
 
+// Confirmed via WebKit Bugzilla #297779 and independently reported against
+// other major sites (e.g. LinkedIn, via the Mastodon project's issue
+// tracker, github.com/mastodon/mastodon/issues/36144): iOS 26 Safari has a
+// system-level bug where window.visualViewport.offsetTop loses sync with
+// the actual viewport during scroll/keyboard-dismissal, causing fixed and
+// sticky elements to render away from their correctly-measured position by
+// up to a full scroll's distance. Apple's own engineers have only
+// partially fixed this as of iOS 26.1, with reports of it reappearing. No
+// page-level CSS/JS workaround that depends on viewport-tracking APIs (our
+// own scroll-driven transform included) can be fully reliable here, since
+// it reads from the same corrupted system component. Detecting this case
+// and falling back to a fully static, normal-flow header (no transform of
+// any kind) makes the bug structurally impossible to trigger, at the cost
+// of the header scrolling away on iOS 26 specifically instead of staying
+// visible.
+function isAffectedIOS26Safari(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  const isIOSWebKit = /iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
+  if (!isIOSWebKit) return false;
+  const match = ua.match(/OS (\d+)_/) || ua.match(/Version\/(\d+)/);
+  const majorVersion = match ? parseInt(match[1], 10) : 0;
+  return majorVersion >= 26;
+}
+
 export default function Navbar() {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  const [staticHeader, setStaticHeader] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
   const links = [
@@ -18,17 +44,16 @@ export default function Navbar() {
     { label: t.nav.links.contact, href: '/contact' },
   ];
 
-  // The header is a normal in-flow element (no position: fixed/sticky at
-  // all) — both broke permanently on-device the moment you scrolled away
-  // from the top. Driving it via window.scrollY directly was meant to
-  // bypass that, but on-device testing showed window.scrollY ITSELF can
-  // transiently misreport 0 mid-gesture (visible live in the debug
-  // overlay's numbers), which made the header snap back to its
-  // un-transformed position for a frame — exactly the "gap" being seen.
-  // A genuine return-to-top is sustained across many frames; a glitch is a
-  // single-frame outlier. Require several consecutive low readings before
-  // trusting a drop to (near) zero, otherwise keep the last good value.
   useEffect(() => {
+    const affected = isAffectedIOS26Safari();
+    setStaticHeader(affected);
+    (window as typeof window & { __staticHeaderMode?: boolean }).__staticHeaderMode = affected;
+  }, []);
+
+  // Scroll-driven "stays pinned to top" behavior — skipped entirely on the
+  // affected iOS 26 Safari case (see isAffectedIOS26Safari above).
+  useEffect(() => {
+    if (staticHeader) return;
     let ticking = false;
     let lastGood = window.scrollY;
     let lowStreak = 0;
@@ -41,15 +66,7 @@ export default function Navbar() {
       if (looksGlitched) {
         lowStreak++;
         if (lowStreak < 4) {
-          // Suspected transient misreport — hold the last known-good value.
           const el = headerRef.current;
-          // translate3d, not translateY: a 2D-only transform isn't
-          // guaranteed to force GPU layer promotion in every WebKit code
-          // path, which on-device evidence showed — the layout engine
-          // measured the header's position correctly via
-          // getBoundingClientRect, but the painted pixels lagged behind by
-          // a full scroll's worth of distance. translate3d is the
-          // unambiguous, always-promoted form.
           if (el) el.style.transform = `translate3d(0, ${lastGood}px, 0)`;
           (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY = lastGood;
           return;
@@ -75,7 +92,7 @@ export default function Navbar() {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, []);
+  }, [staticHeader]);
 
   // Lock background scroll while the menu is open. Deliberately NOT using
   // `position: fixed` on body here — per spec, a `position: fixed` ancestor
@@ -105,7 +122,7 @@ export default function Navbar() {
       <header
         ref={headerRef}
         className="relative z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)] will-change-transform"
-        style={{ transform: 'translate3d(0, 0, 0)' }}
+        style={staticHeader ? undefined : { transform: 'translate3d(0, 0, 0)' }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link
