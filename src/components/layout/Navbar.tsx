@@ -7,7 +7,6 @@ import LanguageToggle from '@/components/ui/LanguageToggle';
 
 export default function Navbar() {
   const { t } = useLanguage();
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -17,12 +16,6 @@ export default function Navbar() {
     { label: t.nav.links.about, href: '/about' },
     { label: t.nav.links.contact, href: '/contact' },
   ];
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Lock background scroll while the menu is open. Deliberately NOT using
   // `position: fixed` on body here — per spec, a `position: fixed` ancestor
@@ -50,26 +43,22 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Always-solid strip behind the status bar / Dynamic Island itself.
-          The header below this is intentionally transparent-over-hero until
-          scrolled — but that transparency let hero video peek through the
-          safe-area padding right behind the status bar, reading as a gap
-          between the status bar and the navbar row. This strip is never
-          transparent, regardless of scroll state, so that sliver is always
-          solid no matter what the header below it is doing. */}
-      <div
-        className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c]"
-        style={{ height: 'env(safe-area-inset-top, 0px)' }}
-      />
-
+      {/*
+        The header is always solid — no transparent-over-hero state.
+        We tried precisely matching a separate safe-area strip against the
+        header's own safe-area offset across multiple rounds, and it kept
+        failing on the actual device (iPhone 16 Pro Max / Dynamic Island):
+        small discrepancies between independently-computed env() values are
+        exactly the kind of thing that's near-impossible to get pixel-perfect
+        without the physical device in hand. A single always-opaque header
+        with one padding-top makes the failure mode structurally impossible
+        instead of trying to get the arithmetic exactly right blind.
+      */}
       <header
-        className="fixed left-0 right-0 z-50 backdrop-blur-2xl"
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-[rgba(10,10,12,0.98)]"
         style={{
-          top: 'env(safe-area-inset-top, 0px)',
-          backgroundColor: scrolled || open ? 'rgba(10,10,12,0.98)' : 'transparent',
-          borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
-          transition: 'background-color 500ms ease, border-color 500ms ease',
-          willChange: 'background-color',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
         }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
