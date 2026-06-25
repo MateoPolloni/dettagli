@@ -50,14 +50,26 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Always-solid strip behind the status bar / Dynamic Island itself.
+          The header below this is intentionally transparent-over-hero until
+          scrolled — but that transparency let hero video peek through the
+          safe-area padding right behind the status bar, reading as a gap
+          between the status bar and the navbar row. This strip is never
+          transparent, regardless of scroll state, so that sliver is always
+          solid no matter what the header below it is doing. */}
+      <div
+        className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c]"
+        style={{ height: 'env(safe-area-inset-top, 0px)' }}
+      />
+
       <header
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl"
+        className="fixed left-0 right-0 z-50 backdrop-blur-2xl"
         style={{
+          top: 'env(safe-area-inset-top, 0px)',
           backgroundColor: scrolled || open ? 'rgba(10,10,12,0.98)' : 'transparent',
           borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
           transition: 'background-color 500ms ease, border-color 500ms ease',
           willChange: 'background-color',
-          paddingTop: 'env(safe-area-inset-top, 0px)',
         }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">

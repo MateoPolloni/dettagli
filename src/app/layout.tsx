@@ -45,6 +45,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${manrope.variable} ${geistMono.variable}`}>
+      <head>
+        {/* Cuts DNS/TLS handshake time off the hero video/poster fetch */}
+        <link rel="preconnect" href="https://videos.pexels.com" />
+        <link rel="preconnect" href="https://images.pexels.com" />
+      </head>
       <body className="min-h-dvh flex flex-col bg-[#0a0a0c] text-[#f2f1ed] antialiased">
         <LanguageProvider>
           <PrecisionCursor />

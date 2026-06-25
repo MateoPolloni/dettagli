@@ -16,11 +16,13 @@ function unsplash(id: string, w = 1800) {
 
 // The single featured vehicle for the hero stage — a Lamborghini Aventador.
 // Video confirmed by frame inspection: black Aventador, motion blur, sun
-// backlighting, highway. `poster` is the static frame shown before the video
-// can play and as the fallback if video fails to load.
+// backlighting, highway. `poster` is an actual extracted frame from that
+// same video (not a different photo) so there's no jarring mismatched swap
+// while the video buffers on a slow connection — it reads as a continuous
+// load-in rather than two different cars appearing one after the other.
 export const heroVehicle = {
   video: "https://videos.pexels.com/video-files/7727416/7727416-hd_1920_1080_25fps.mp4",
-  poster: unsplash("photo-1525609004556-c46c7d6cf023", 2400),
+  poster: "https://images.pexels.com/videos/7727416/lamborghini-7727416.jpeg?w=1920&h=1080&dpr=1",
   name: "Lamborghini Aventador",
 };
 
