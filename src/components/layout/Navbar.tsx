@@ -19,20 +19,42 @@ export default function Navbar() {
   ];
 
   // The header is a normal in-flow element (no position: fixed/sticky at
-  // all) — on this device, both of those broke permanently the moment you
-  // scrolled away from the top, only resetting if you scrolled back to
-  // scrollY 0. That's the browser's own internal "stuck" tracking failing,
-  // not something we can fix by tuning CSS values further. This bypasses
-  // that mechanism entirely: a scroll listener explicitly transforms the
-  // header by the current scroll distance every frame, so it's never
-  // relying on the browser to remember anything — it's recomputed from
-  // scratch on every single scroll event.
+  // all) — both broke permanently on-device the moment you scrolled away
+  // from the top. Driving it via window.scrollY directly was meant to
+  // bypass that, but on-device testing showed window.scrollY ITSELF can
+  // transiently misreport 0 mid-gesture (visible live in the debug
+  // overlay's numbers), which made the header snap back to its
+  // un-transformed position for a frame — exactly the "gap" being seen.
+  // A genuine return-to-top is sustained across many frames; a glitch is a
+  // single-frame outlier. Require several consecutive low readings before
+  // trusting a drop to (near) zero, otherwise keep the last good value.
   useEffect(() => {
     let ticking = false;
+    let lastGood = window.scrollY;
+    let lowStreak = 0;
+
     const apply = () => {
       ticking = false;
+      const current = window.scrollY;
+      const looksGlitched = current <= 2 && lastGood > 40;
+
+      if (looksGlitched) {
+        lowStreak++;
+        if (lowStreak < 4) {
+          // Suspected transient misreport — hold the last known-good value.
+          const el = headerRef.current;
+          if (el) el.style.transform = `translateY(${lastGood}px)`;
+          (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY = lastGood;
+          return;
+        }
+      } else {
+        lowStreak = 0;
+      }
+
+      lastGood = current;
       const el = headerRef.current;
-      if (el) el.style.transform = `translateY(${window.scrollY}px)`;
+      if (el) el.style.transform = `translateY(${current}px)`;
+      (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY = current;
     };
     const onScroll = () => {
       if (ticking) return;

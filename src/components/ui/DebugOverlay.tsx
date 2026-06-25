@@ -17,12 +17,10 @@ export default function DebugOverlay() {
         const header = document.querySelector('header');
         const rect = header?.getBoundingClientRect();
         const computedTransform = header ? getComputedStyle(header).transform : 'n/a';
+        const appliedY = (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY;
         setStats({
-          scrollY: String(Math.round(window.scrollY)),
-          innerHeight: String(window.innerHeight),
-          vvHeight: vv ? String(Math.round(vv.height)) : 'n/a',
-          vvOffsetTop: vv ? String(Math.round(vv.offsetTop)) : 'n/a',
-          vvScale: vv ? vv.scale.toFixed(3) : 'n/a',
+          rawScrollY: String(Math.round(window.scrollY)),
+          appliedY: appliedY === undefined ? 'n/a' : String(Math.round(appliedY)),
           headerTop: rect ? rect.top.toFixed(1) : 'n/a',
           headerBottom: rect ? rect.bottom.toFixed(1) : 'n/a',
           headerTransform: computedTransform,
