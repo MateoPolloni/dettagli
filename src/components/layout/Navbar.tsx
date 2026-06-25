@@ -7,6 +7,7 @@ import LanguageToggle from '@/components/ui/LanguageToggle';
 
 export default function Navbar() {
   const { t } = useLanguage();
+  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -16,6 +17,12 @@ export default function Navbar() {
     { label: t.nav.links.about, href: '/about' },
     { label: t.nav.links.contact, href: '/contact' },
   ];
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Lock background scroll while the menu is open. Deliberately NOT using
   // `position: fixed` on body here — per spec, a `position: fixed` ancestor
@@ -44,16 +51,25 @@ export default function Navbar() {
   return (
     <>
       {/*
-        The header is always solid (no transparent-over-hero state) with a
-        plain, non-dynamic top buffer on phones — no env(safe-area-inset-*).
-        Several rounds of trying to size that buffer exactly via env()
-        failed on the actual device in ways that couldn't be reproduced or
-        verified remotely. A fixed buffer comfortably larger than any
-        notch/Dynamic Island (64px covers every current iPhone with margin)
-        means the background only ever needs to start at the true top of
-        the screen and stay solid — nothing dynamic to get out of sync.
+        Notch/Dynamic Island strip — height is env(safe-area-inset-top),
+        which is 0 on every device without a cutout, so this has zero
+        effect anywhere else. Always solid regardless of scroll state,
+        independent of the header below (which stays transparent-over-hero
+        as originally designed).
       */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)] pt-16 sm:pt-0">
+      <div
+        className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c]"
+        style={{ height: 'env(safe-area-inset-top, 0px)' }}
+      />
+
+      <header
+        className="fixed left-0 right-0 z-50 backdrop-blur-2xl transition-colors duration-500"
+        style={{
+          top: 'env(safe-area-inset-top, 0px)',
+          backgroundColor: scrolled || open ? 'rgba(10,10,12,0.98)' : 'transparent',
+          borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+        }}
+      >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link
             href="/"
