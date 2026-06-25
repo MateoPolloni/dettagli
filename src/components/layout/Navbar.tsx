@@ -12,22 +12,19 @@ import LanguageToggle from '@/components/ui/LanguageToggle';
 // the actual viewport during scroll/keyboard-dismissal, causing fixed and
 // sticky elements to render away from their correctly-measured position by
 // up to a full scroll's distance. Apple's own engineers have only
-// partially fixed this as of iOS 26.1, with reports of it reappearing. No
-// page-level CSS/JS workaround that depends on viewport-tracking APIs (our
-// own scroll-driven transform included) can be fully reliable here, since
-// it reads from the same corrupted system component. Detecting this case
-// and falling back to a fully static, normal-flow header (no transform of
-// any kind) makes the bug structurally impossible to trigger, at the cost
-// of the header scrolling away on iOS 26 specifically instead of staying
-// visible.
-function isAffectedIOS26Safari(): boolean {
+// partially fixed this as of iOS 26.1, with reports of it reappearing.
+//
+// Tried gating this fallback to "iOS 26+" specifically by reading the OS
+// version out of the User-Agent string, but on-device testing showed it
+// never matches even on a confirmed iOS 26 device — Safari has been
+// freezing/reducing the OS version it reports in the UA string for
+// fingerprinting-resistance, so version-sniffing isn't reliable here. The
+// device type token (iPhone/iPad) isn't subject to that freezing, so we
+// fall back for all iOS Safari rather than try to pinpoint a version.
+function isIOSSafari(): boolean {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent;
-  const isIOSWebKit = /iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
-  if (!isIOSWebKit) return false;
-  const match = ua.match(/OS (\d+)_/) || ua.match(/Version\/(\d+)/);
-  const majorVersion = match ? parseInt(match[1], 10) : 0;
-  return majorVersion >= 26;
+  return /iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
 }
 
 export default function Navbar() {
@@ -45,13 +42,13 @@ export default function Navbar() {
   ];
 
   useEffect(() => {
-    const affected = isAffectedIOS26Safari();
+    const affected = isIOSSafari();
     setStaticHeader(affected);
     (window as typeof window & { __staticHeaderMode?: boolean }).__staticHeaderMode = affected;
   }, []);
 
-  // Scroll-driven "stays pinned to top" behavior — skipped entirely on the
-  // affected iOS 26 Safari case (see isAffectedIOS26Safari above).
+  // Scroll-driven "stays pinned to top" behavior — skipped entirely on iOS
+  // Safari (see isIOSSafari above).
   useEffect(() => {
     if (staticHeader) return;
     let ticking = false;
