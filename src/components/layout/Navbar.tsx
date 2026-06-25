@@ -31,6 +31,7 @@ export default function Navbar() {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [staticHeader, setStaticHeader] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
   const links = [
@@ -45,6 +46,18 @@ export default function Navbar() {
     const affected = isIOSSafari();
     setStaticHeader(affected);
     (window as typeof window & { __staticHeaderMode?: boolean }).__staticHeaderMode = affected;
+  }, []);
+
+  // Transparent-over-hero until scrolled, then solid + blurred — the
+  // original premium look. This is purely a background-color/blur
+  // transition on whichever positioning mode is active above; it doesn't
+  // touch position/transform at all, so it's safe to use unconditionally
+  // on both the JS-pinned header and the iOS Safari static fallback.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Scroll-driven "stays pinned to top" behavior — skipped entirely on iOS
@@ -118,8 +131,13 @@ export default function Navbar() {
     <>
       <header
         ref={headerRef}
-        className="relative z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)] will-change-transform"
-        style={staticHeader ? undefined : { transform: 'translate3d(0, 0, 0)' }}
+        className={`relative z-50 will-change-transform ${scrolled || open ? 'backdrop-blur-2xl' : ''}`}
+        style={{
+          ...(staticHeader ? {} : { transform: 'translate3d(0, 0, 0)' }),
+          backgroundColor: scrolled || open ? 'rgba(10,10,12,0.98)' : 'transparent',
+          borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+          transition: 'background-color 500ms ease, border-color 500ms ease',
+        }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link

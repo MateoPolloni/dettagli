@@ -8,7 +8,10 @@ export default function Hero360() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative flex items-center overflow-hidden bg-[#0a0a0c]" style={{ minHeight: 'calc(100vh - 5rem)' }}>
+    <section
+      className="relative flex items-center overflow-hidden bg-[#0a0a0c]"
+      style={{ minHeight: '100vh', marginTop: '-5rem' }}
+    >
 
       {/* The featured vehicle, unveiled */}
       <div className="absolute inset-0">
@@ -31,7 +34,7 @@ export default function Hero360() {
 
       {/* Top label — museum-placard style vehicle credit */}
       <div
-        className="absolute top-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none animate-fade-in"
+        className="absolute top-28 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none animate-fade-in"
         style={{ animationDelay: '2.1s', opacity: 0 }}
       >
         <span className="font-sans text-[9px] tracking-[0.38em] uppercase text-[#55555c]">
