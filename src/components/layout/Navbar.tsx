@@ -56,18 +56,31 @@ export default function Navbar() {
         effect anywhere else. Always solid regardless of scroll state,
         independent of the header below (which stays transparent-over-hero
         as originally designed).
+
+        transform/translateZ + isolation force this onto its own promoted
+        GPU compositing layer with a sealed stacking context. Autoplaying
+        <video> elements get their own hardware layer on iOS Safari, which
+        can occasionally render above position:fixed elements during scroll
+        regardless of z-index — a compositing-order bug, not a layout one.
+        This is the standard workaround for that class of bug.
       */}
       <div
-        className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c]"
-        style={{ height: 'env(safe-area-inset-top, 0px)' }}
+        className="fixed top-0 left-0 right-0 z-[60] bg-[#0a0a0c]"
+        style={{
+          height: 'env(safe-area-inset-top, 0px)',
+          transform: 'translateZ(0)',
+          isolation: 'isolate',
+        }}
       />
 
       <header
-        className="fixed left-0 right-0 z-50 backdrop-blur-2xl transition-colors duration-500"
+        className="fixed left-0 right-0 z-[60] backdrop-blur-2xl transition-colors duration-500"
         style={{
           top: 'env(safe-area-inset-top, 0px)',
           backgroundColor: scrolled || open ? 'rgba(10,10,12,0.98)' : 'transparent',
           borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+          transform: 'translateZ(0)',
+          isolation: 'isolate',
         }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
