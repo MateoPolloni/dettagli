@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import LanguageToggle from '@/components/ui/LanguageToggle';
 
 export default function Navbar() {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   const links = [
     { label: t.nav.links.services, href: '/services' },
@@ -16,6 +17,36 @@ export default function Navbar() {
     { label: t.nav.links.about, href: '/about' },
     { label: t.nav.links.contact, href: '/contact' },
   ];
+
+  // The header is a normal in-flow element (no position: fixed/sticky at
+  // all) — on this device, both of those broke permanently the moment you
+  // scrolled away from the top, only resetting if you scrolled back to
+  // scrollY 0. That's the browser's own internal "stuck" tracking failing,
+  // not something we can fix by tuning CSS values further. This bypasses
+  // that mechanism entirely: a scroll listener explicitly transforms the
+  // header by the current scroll distance every frame, so it's never
+  // relying on the browser to remember anything — it's recomputed from
+  // scratch on every single scroll event.
+  useEffect(() => {
+    let ticking = false;
+    const apply = () => {
+      ticking = false;
+      const el = headerRef.current;
+      if (el) el.style.transform = `translateY(${window.scrollY}px)`;
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    };
+    apply();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
 
   // Lock background scroll while the menu is open. Deliberately NOT using
   // `position: fixed` on body here — per spec, a `position: fixed` ancestor
@@ -42,22 +73,9 @@ export default function Navbar() {
 
   return (
     <>
-      {/*
-        position: sticky instead of position: fixed. Real-device testing
-        showed the header detaching from the top of the viewport during
-        scroll (content rendering above it, overlapping the status bar) —
-        a known class of iOS Safari bug where `fixed` elements can track
-        the wrong viewport reference during the address-bar collapse
-        animation. `sticky` is computed through normal layout/scroll
-        instead of viewport-relative compositing and doesn't share that
-        failure mode. As an in-flow element it also needs no manual
-        safe-area compensation — it naturally never renders under a
-        notch/Dynamic Island, so all the env(safe-area-inset-top) code
-        from earlier attempts is gone too.
-      */}
       <header
-        className="sticky top-0 z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)]"
-        style={{ transform: 'translateZ(0)', WebkitBackfaceVisibility: 'hidden', backfaceVisibility: 'hidden' }}
+        ref={headerRef}
+        className="relative z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)] will-change-transform"
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link

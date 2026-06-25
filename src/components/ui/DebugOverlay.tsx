@@ -16,16 +16,16 @@ export default function DebugOverlay() {
         const vv = window.visualViewport;
         const header = document.querySelector('header');
         const rect = header?.getBoundingClientRect();
+        const computedTransform = header ? getComputedStyle(header).transform : 'n/a';
         setStats({
           scrollY: String(Math.round(window.scrollY)),
           innerHeight: String(window.innerHeight),
           vvHeight: vv ? String(Math.round(vv.height)) : 'n/a',
           vvOffsetTop: vv ? String(Math.round(vv.offsetTop)) : 'n/a',
-          vvOffsetLeft: vv ? String(Math.round(vv.offsetLeft)) : 'n/a',
           vvScale: vv ? vv.scale.toFixed(3) : 'n/a',
-          docClientHeight: String(document.documentElement.clientHeight),
           headerTop: rect ? rect.top.toFixed(1) : 'n/a',
           headerBottom: rect ? rect.bottom.toFixed(1) : 'n/a',
+          headerTransform: computedTransform,
         });
       }
       raf = requestAnimationFrame(tick);

@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           {/* Temporary cache-verification marker — remove once confirmed fresh */}
           <div className="fixed bottom-1 left-1 z-[9999] pointer-events-none font-mono text-[8px] text-[#3a3a40]">
-            build-r9-paintfix
+            build-r10-jsdriven
           </div>
           {/* Temporary diagnostic overlay — remove once the gap bug is fixed */}
           <DebugOverlay />
