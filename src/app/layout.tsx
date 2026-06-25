@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PrecisionCursor from '@/components/ui/PrecisionCursor';
+import DebugOverlay from '@/components/ui/DebugOverlay';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 
 const cormorant = Cormorant({
@@ -52,8 +53,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           {/* Temporary cache-verification marker — remove once confirmed fresh */}
           <div className="fixed bottom-1 left-1 z-[9999] pointer-events-none font-mono text-[8px] text-[#3a3a40]">
-            build-r6-novh
+            build-r7-debug
           </div>
+          {/* Temporary diagnostic overlay — remove once the gap bug is fixed */}
+          <DebugOverlay />
         </LanguageProvider>
       </body>
     </html>
