@@ -32,12 +32,8 @@ export const metadata: Metadata = {
     'Premium detailing for exotic and high-end vehicles. Paint correction, ceramic coating, and concours-level care for the world\'s finest automobiles.',
 };
 
-// Required for env(safe-area-inset-*) to resolve to non-zero values on
-// notched/Dynamic-Island devices — without it those always evaluate to 0,
-// which is also why it has zero effect on devices without a cutout.
 export const viewport: Viewport = {
   themeColor: '#0a0a0c',
-  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -56,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           {/* Temporary cache-verification marker — remove once confirmed fresh */}
           <div className="fixed bottom-1 left-1 z-[9999] pointer-events-none font-mono text-[8px] text-[#3a3a40]">
-            build-r4-gpulayer
+            build-r5-sticky
           </div>
         </LanguageProvider>
       </body>

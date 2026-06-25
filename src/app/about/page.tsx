@@ -11,7 +11,7 @@ export default function AboutPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="pt-40 pb-32">
+    <div className="pt-20 pb-32">
       <div className="max-w-4xl mx-auto px-8 md:px-14 text-center mb-20">
         <RevealOnScroll className="flex flex-col items-center">
           <SectionLabel index="N° 01">{t.aboutPage.label}</SectionLabel>

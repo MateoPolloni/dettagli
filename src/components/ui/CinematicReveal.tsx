@@ -64,10 +64,7 @@ export default function CinematicReveal({ videoSrc, poster, alt, className = '' 
   const useVideo = showVideo && !videoFailed;
 
   return (
-    <div
-      className={`relative overflow-hidden ${className}`}
-      style={{ isolation: 'isolate', contain: 'paint' }}
-    >
+    <div className={`relative overflow-hidden ${className}`}>
       <div
         className="absolute inset-0 transition-transform duration-[2400ms]"
         style={{

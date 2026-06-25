@@ -8,7 +8,7 @@ export default function Hero360() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-dvh flex items-center overflow-hidden bg-[#0a0a0c]">
+    <section className="relative flex items-center overflow-hidden bg-[#0a0a0c]" style={{ minHeight: 'calc(100dvh - 5rem)' }}>
 
       {/* The featured vehicle, unveiled */}
       <div className="absolute inset-0">
@@ -31,8 +31,8 @@ export default function Hero360() {
 
       {/* Top label — museum-placard style vehicle credit */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none animate-fade-in"
-        style={{ animationDelay: '2.1s', opacity: 0, top: 'calc(env(safe-area-inset-top, 0px) + 7rem)' }}
+        className="absolute top-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none animate-fade-in"
+        style={{ animationDelay: '2.1s', opacity: 0 }}
       >
         <span className="font-sans text-[9px] tracking-[0.38em] uppercase text-[#55555c]">
           {t.hero.featuredVehicle}

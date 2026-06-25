@@ -7,7 +7,6 @@ import LanguageToggle from '@/components/ui/LanguageToggle';
 
 export default function Navbar() {
   const { t } = useLanguage();
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -18,19 +17,12 @@ export default function Navbar() {
     { label: t.nav.links.contact, href: '/contact' },
   ];
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
   // Lock background scroll while the menu is open. Deliberately NOT using
   // `position: fixed` on body here — per spec, a `position: fixed` ancestor
   // creates a new containing block for ITS OWN fixed-position descendants,
-  // which would hijack our fixed header and the menu overlay itself,
-  // detaching them from the real viewport (visible as a gap/misalignment
-  // at the top of the screen). `overflow: hidden` + `overscroll-behavior`
-  // achieves the same lock on modern iOS Safari without that hazard.
+  // which would hijack the menu overlay itself, detaching it from the real
+  // viewport. `overflow: hidden` + `overscroll-behavior` achieves the same
+  // lock on modern iOS Safari without that hazard.
   useEffect(() => {
     if (!open) return;
     const html = document.documentElement.style;
@@ -51,38 +43,19 @@ export default function Navbar() {
   return (
     <>
       {/*
-        Notch/Dynamic Island strip — height is env(safe-area-inset-top),
-        which is 0 on every device without a cutout, so this has zero
-        effect anywhere else. Always solid regardless of scroll state,
-        independent of the header below (which stays transparent-over-hero
-        as originally designed).
-
-        transform/translateZ + isolation force this onto its own promoted
-        GPU compositing layer with a sealed stacking context. Autoplaying
-        <video> elements get their own hardware layer on iOS Safari, which
-        can occasionally render above position:fixed elements during scroll
-        regardless of z-index — a compositing-order bug, not a layout one.
-        This is the standard workaround for that class of bug.
+        position: sticky instead of position: fixed. Real-device testing
+        showed the header detaching from the top of the viewport during
+        scroll (content rendering above it, overlapping the status bar) —
+        a known class of iOS Safari bug where `fixed` elements can track
+        the wrong viewport reference during the address-bar collapse
+        animation. `sticky` is computed through normal layout/scroll
+        instead of viewport-relative compositing and doesn't share that
+        failure mode. As an in-flow element it also needs no manual
+        safe-area compensation — it naturally never renders under a
+        notch/Dynamic Island, so all the env(safe-area-inset-top) code
+        from earlier attempts is gone too.
       */}
-      <div
-        className="fixed top-0 left-0 right-0 z-[60] bg-[#0a0a0c]"
-        style={{
-          height: 'env(safe-area-inset-top, 0px)',
-          transform: 'translateZ(0)',
-          isolation: 'isolate',
-        }}
-      />
-
-      <header
-        className="fixed left-0 right-0 z-[60] backdrop-blur-2xl transition-colors duration-500"
-        style={{
-          top: 'env(safe-area-inset-top, 0px)',
-          backgroundColor: scrolled || open ? 'rgba(10,10,12,0.98)' : 'transparent',
-          borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
-          transform: 'translateZ(0)',
-          isolation: 'isolate',
-        }}
-      >
+      <header className="sticky top-0 z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)]">
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link
             href="/"
@@ -123,7 +96,9 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Full-screen menu overlay */}
+      {/* Full-screen menu overlay — stays position: fixed. Unlike the
+          header, this covers the entire viewport (inset-0) and has never
+          shown the detachment bug, so there's no reason to change it. */}
       <div
         className={`fixed inset-0 z-40 bg-[#0a0a0c] overflow-y-auto transition-opacity duration-500 ${
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'

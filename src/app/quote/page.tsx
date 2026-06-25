@@ -9,7 +9,7 @@ export default function QuotePage() {
   const { t } = useLanguage();
 
   return (
-    <div className="pt-40 pb-32">
+    <div className="pt-20 pb-32">
       <div className="max-w-2xl mx-auto px-8 md:px-14 text-center mb-16">
         <RevealOnScroll className="flex flex-col items-center">
           <SectionLabel index="N° 01">{t.quotePage.label}</SectionLabel>

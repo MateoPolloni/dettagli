@@ -9,7 +9,7 @@ export default function ContactPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="pt-40 pb-32">
+    <div className="pt-20 pb-32">
       <div className="max-w-6xl mx-auto px-8 md:px-14 grid grid-cols-1 md:grid-cols-2 gap-16">
         <RevealOnScroll>
           <SectionLabel index="N° 01">{t.contactPage.label}</SectionLabel>
