@@ -43,7 +43,14 @@ export default function Navbar() {
         if (lowStreak < 4) {
           // Suspected transient misreport — hold the last known-good value.
           const el = headerRef.current;
-          if (el) el.style.transform = `translateY(${lastGood}px)`;
+          // translate3d, not translateY: a 2D-only transform isn't
+          // guaranteed to force GPU layer promotion in every WebKit code
+          // path, which on-device evidence showed — the layout engine
+          // measured the header's position correctly via
+          // getBoundingClientRect, but the painted pixels lagged behind by
+          // a full scroll's worth of distance. translate3d is the
+          // unambiguous, always-promoted form.
+          if (el) el.style.transform = `translate3d(0, ${lastGood}px, 0)`;
           (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY = lastGood;
           return;
         }
@@ -53,7 +60,7 @@ export default function Navbar() {
 
       lastGood = current;
       const el = headerRef.current;
-      if (el) el.style.transform = `translateY(${current}px)`;
+      if (el) el.style.transform = `translate3d(0, ${current}px, 0)`;
       (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY = current;
     };
     const onScroll = () => {
@@ -98,6 +105,7 @@ export default function Navbar() {
       <header
         ref={headerRef}
         className="relative z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)] will-change-transform"
+        style={{ transform: 'translate3d(0, 0, 0)' }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link
