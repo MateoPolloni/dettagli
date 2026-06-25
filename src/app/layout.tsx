@@ -33,9 +33,10 @@ export const metadata: Metadata = {
     'Premium detailing for exotic and high-end vehicles. Paint correction, ceramic coating, and concours-level care for the world\'s finest automobiles.',
 };
 
-export const viewport: Viewport = {
-  themeColor: '#0a0a0c',
-};
+// theme-color removed as a test — it tints Safari's own UI chrome
+// (including its collapsed address-bar pill), which is a candidate for
+// the unexplained dark/blank pill the user spotted next to the clock.
+export const viewport: Viewport = {};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -53,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           {/* Temporary cache-verification marker — remove once confirmed fresh */}
           <div className="fixed bottom-1 left-1 z-[9999] pointer-events-none font-mono text-[8px] text-[#3a3a40]">
-            build-r7-debug
+            build-r8-notheme
           </div>
           {/* Temporary diagnostic overlay — remove once the gap bug is fixed */}
           <DebugOverlay />
