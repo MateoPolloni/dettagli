@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://videos.pexels.com" />
         <link rel="preconnect" href="https://images.pexels.com" />
       </head>
-      <body className="min-h-dvh flex flex-col bg-[#0a0a0c] text-[#f2f1ed] antialiased">
+      <body className="min-h-screen flex flex-col bg-[#0a0a0c] text-[#f2f1ed] antialiased">
         <LanguageProvider>
           <PrecisionCursor />
           <Navbar />
@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           {/* Temporary cache-verification marker — remove once confirmed fresh */}
           <div className="fixed bottom-1 left-1 z-[9999] pointer-events-none font-mono text-[8px] text-[#3a3a40]">
-            build-r5-sticky
+            build-r6-novh
           </div>
         </LanguageProvider>
       </body>
