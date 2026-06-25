@@ -57,6 +57,7 @@ export default function Navbar() {
           borderBottom: scrolled || open ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
           transition: 'background-color 500ms ease, border-color 500ms ease',
           willChange: 'background-color',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
         }}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
@@ -105,7 +106,13 @@ export default function Navbar() {
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="min-h-full flex flex-col justify-center px-8 md:px-20 py-28">
+        <div
+          className="min-h-full flex flex-col justify-center px-8 md:px-20"
+          style={{
+            paddingTop: 'max(7rem, calc(env(safe-area-inset-top, 0px) + 3rem))',
+            paddingBottom: 'max(7rem, calc(env(safe-area-inset-bottom, 0px) + 3rem))',
+          }}
+        >
           <nav className="flex flex-col gap-2">
             {links.map((link, i) => (
               <Link
