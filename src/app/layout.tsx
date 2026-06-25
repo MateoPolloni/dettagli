@@ -4,7 +4,6 @@ import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import PrecisionCursor from '@/components/ui/PrecisionCursor';
-import DebugOverlay from '@/components/ui/DebugOverlay';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 
 const cormorant = Cormorant({
@@ -33,10 +32,9 @@ export const metadata: Metadata = {
     'Premium detailing for exotic and high-end vehicles. Paint correction, ceramic coating, and concours-level care for the world\'s finest automobiles.',
 };
 
-// theme-color removed as a test — it tints Safari's own UI chrome
-// (including its collapsed address-bar pill), which is a candidate for
-// the unexplained dark/blank pill the user spotted next to the clock.
-export const viewport: Viewport = {};
+export const viewport: Viewport = {
+  themeColor: '#0a0a0c',
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -50,23 +48,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
           <PrecisionCursor />
           <Navbar />
-          {/*
-            The header's own position is now confirmed correct via the
-            debug overlay (build-r11). The remaining bug is separate: stale
-            content from sections already scrolled past stays painted,
-            frozen, at the very top of the screen overlapping the status
-            bar/navbar — a WebKit compositing bug, not a layout bug. Forcing
-            `main` onto its own promoted GPU layer is the standard fix for
-            this exact class of stale-paint-during-scroll bug.
-          */}
+          {/* Forces its own GPU-promoted compositing layer — fixes a
+              WebKit bug where content already scrolled past stayed
+              painted, frozen, at the top of the screen during scroll. */}
           <main className="flex-1" style={{ transform: 'translateZ(0)' }}>{children}</main>
           <Footer />
-          {/* Temporary cache-verification marker — remove once confirmed fresh */}
-          <div className="fixed bottom-1 left-1 z-[9999] pointer-events-none font-mono text-[8px] text-[#3a3a40]">
-            build-r14-alliosfallback
-          </div>
-          {/* Temporary diagnostic overlay — remove once the gap bug is fixed */}
-          <DebugOverlay />
         </LanguageProvider>
       </body>
     </html>

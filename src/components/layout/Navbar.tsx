@@ -43,9 +43,7 @@ export default function Navbar() {
   ];
 
   useEffect(() => {
-    const affected = isIOSSafari();
-    setStaticHeader(affected);
-    (window as typeof window & { __staticHeaderMode?: boolean }).__staticHeaderMode = affected;
+    setStaticHeader(isIOSSafari());
   }, []);
 
   // Transparent-over-hero until scrolled, then solid + blurred — the
@@ -78,7 +76,6 @@ export default function Navbar() {
         if (lowStreak < 4) {
           const el = headerRef.current;
           if (el) el.style.transform = `translate3d(0, ${lastGood}px, 0)`;
-          (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY = lastGood;
           return;
         }
       } else {
@@ -88,7 +85,6 @@ export default function Navbar() {
       lastGood = current;
       const el = headerRef.current;
       if (el) el.style.transform = `translate3d(0, ${current}px, 0)`;
-      (window as typeof window & { __headerAppliedY?: number }).__headerAppliedY = current;
     };
     const onScroll = () => {
       if (ticking) return;
