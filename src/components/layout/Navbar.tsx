@@ -55,7 +55,10 @@ export default function Navbar() {
         notch/Dynamic Island, so all the env(safe-area-inset-top) code
         from earlier attempts is gone too.
       */}
-      <header className="sticky top-0 z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)]">
+      <header
+        className="sticky top-0 z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)]"
+        style={{ transform: 'translateZ(0)', WebkitBackfaceVisibility: 'hidden', backfaceVisibility: 'hidden' }}
+      >
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link
             href="/"
