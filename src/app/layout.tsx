@@ -50,7 +50,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
           <PrecisionCursor />
           <Navbar />
-          <main className="flex-1">{children}</main>
+          {/*
+            The header's own position is now confirmed correct via the
+            debug overlay (build-r11). The remaining bug is separate: stale
+            content from sections already scrolled past stays painted,
+            frozen, at the very top of the screen overlapping the status
+            bar/navbar — a WebKit compositing bug, not a layout bug. Forcing
+            `main` onto its own promoted GPU layer is the standard fix for
+            this exact class of stale-paint-during-scroll bug.
+          */}
+          <main className="flex-1" style={{ transform: 'translateZ(0)' }}>{children}</main>
           <Footer />
           {/* Temporary cache-verification marker — remove once confirmed fresh */}
           <div className="fixed bottom-1 left-1 z-[9999] pointer-events-none font-mono text-[8px] text-[#3a3a40]">
