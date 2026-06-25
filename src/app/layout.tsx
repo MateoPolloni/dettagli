@@ -32,14 +32,8 @@ export const metadata: Metadata = {
     'Premium detailing for exotic and high-end vehicles. Paint correction, ceramic coating, and concours-level care for the world\'s finest automobiles.',
 };
 
-// `viewport-fit: cover` opts the page into rendering edge-to-edge on
-// devices with a notch/Dynamic Island, which gives us explicit control via
-// env(safe-area-inset-*) — without it, Safari's behavior on these devices
-// is inconsistent about whether content extends under the cutout, which is
-// what caused the navbar/hero misalignment on iPhone 16 Pro Max specifically.
 export const viewport: Viewport = {
   themeColor: '#0a0a0c',
-  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

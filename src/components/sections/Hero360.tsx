@@ -31,8 +31,8 @@ export default function Hero360() {
 
       {/* Top label — museum-placard style vehicle credit */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none animate-fade-in"
-        style={{ animationDelay: '2.1s', opacity: 0, top: 'max(7rem, calc(env(safe-area-inset-top, 0px) + 6rem))' }}
+        className="absolute top-40 sm:top-28 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none animate-fade-in"
+        style={{ animationDelay: '2.1s', opacity: 0 }}
       >
         <span className="font-sans text-[9px] tracking-[0.38em] uppercase text-[#55555c]">
           {t.hero.featuredVehicle}

@@ -44,23 +44,16 @@ export default function Navbar() {
   return (
     <>
       {/*
-        The header is always solid — no transparent-over-hero state.
-        We tried precisely matching a separate safe-area strip against the
-        header's own safe-area offset across multiple rounds, and it kept
-        failing on the actual device (iPhone 16 Pro Max / Dynamic Island):
-        small discrepancies between independently-computed env() values are
-        exactly the kind of thing that's near-impossible to get pixel-perfect
-        without the physical device in hand. A single always-opaque header
-        with one padding-top makes the failure mode structurally impossible
-        instead of trying to get the arithmetic exactly right blind.
+        The header is always solid (no transparent-over-hero state) with a
+        plain, non-dynamic top buffer on phones — no env(safe-area-inset-*).
+        Several rounds of trying to size that buffer exactly via env()
+        failed on the actual device in ways that couldn't be reproduced or
+        verified remotely. A fixed buffer comfortably larger than any
+        notch/Dynamic Island (64px covers every current iPhone with margin)
+        means the background only ever needs to start at the true top of
+        the screen and stay solid — nothing dynamic to get out of sync.
       */}
-      <header
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-[rgba(10,10,12,0.98)]"
-        style={{
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-          paddingTop: 'env(safe-area-inset-top, 0px)',
-        }}
-      >
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c] border-b border-[rgba(255,255,255,0.07)] pt-16 sm:pt-0">
         <div className="max-w-7xl mx-auto px-8 md:px-14 h-20 flex items-center justify-between">
           <Link
             href="/"
@@ -107,13 +100,7 @@ export default function Navbar() {
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div
-          className="min-h-full flex flex-col justify-center px-8 md:px-20"
-          style={{
-            paddingTop: 'max(7rem, calc(env(safe-area-inset-top, 0px) + 3rem))',
-            paddingBottom: 'max(7rem, calc(env(safe-area-inset-bottom, 0px) + 3rem))',
-          }}
-        >
+        <div className="min-h-full flex flex-col justify-center px-8 md:px-20 py-28">
           <nav className="flex flex-col gap-2">
             {links.map((link, i) => (
               <Link
